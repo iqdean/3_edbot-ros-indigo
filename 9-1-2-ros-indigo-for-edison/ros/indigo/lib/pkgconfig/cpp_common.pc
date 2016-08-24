@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: cpp_common
+Description: Description of cpp_common
+Version: 0.5.6
+Cflags: -I/home/ros/indigo/include -I/usr/include
+Libs: -L/home/ros/indigo/lib -lcpp_common -l:/usr/lib/libboost_system-mt.so -l:/usr/lib/libboost_thread-mt.so -lpthread -l:/usr/lib/i386-linux-gnu/libconsole_bridge.so
+Requires: 

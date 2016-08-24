@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: xmlrpcpp
+Description: Description of xmlrpcpp
+Version: 1.11.13
+Cflags: -I/home/ros/indigo/include
+Libs: -L/home/ros/indigo/lib -lxmlrpcpp
+Requires: cpp_common

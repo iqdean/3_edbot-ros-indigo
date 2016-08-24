@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rosboost_cfg
+Description: Description of rosboost_cfg
+Version: 1.11.8
+Cflags: 
+Libs: -L/home/ros/indigo/lib 
+Requires: 

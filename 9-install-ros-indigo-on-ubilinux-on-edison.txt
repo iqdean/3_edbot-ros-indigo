@@ -1,0 +1,1091 @@
+Refs:
+---------------------------------
+http://wiki.ros.org/wiki/edison
+---------------------------------
+see what kind of space we got on filesys:
+
+root@ubilinux:~# df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  817M  499M  63% /
+/dev/root        1.4G  817M  499M  63% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  296K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  2.0M  1.3G   1% /home
+
+1. preliminaries
+
+1.1 set machine's hostname... If you don't do this, sudo won't work
+root@ubilinux:~# nano /etc/hosts
+root@ubilinux:~# cat /etc/hosts
+127.0.0.1       localhost ubilinux     < 1.1 add ubilinux to /etc/hosts localhost line
+
+1.2 Using the same login name as on other machines on your network will make ROS communications easier. 
+root@ubilinux:~# useradd iqdean
+root@ubilinux:~# mkdir /home/iqdean
+root@ubilinux:~# chown iqdean:users /home/iqdean
+root@ubilinux:~# passwd iqdean
+Enter new UNIX password:csolxxxx
+root@ubilinux:~# echo "iqdean   ALL=(ALL:ALL) ALL" >> /etc/sudoers
+root@ubilinux:~# chsh iqdean -s /bin/bash       < set user's login shell to /bin/bash
+
+1.3 install git
+root@ubilinux:~# apt-get install git
+...
+git is already the newest version.
+
+1.4 
+root@ubilinux:~# exit	< closes ssh putty session
+
+iqdean@ubilinux:~$	< start ssh putty session,  log in as user iqdean
+
+$which sudo             < not installed, so logout as iqdean, login as root
+
+AS root:
+$ apt-get update
+$ apt-get install sudo
+
+root@ubilinux:~# which sudo
+/usr/bin/sudo
+root@ubilinux:~# cat /etc/sudoers
+iqdean   ALL=(ALL:ALL) ALL
+
+== log out as root and log back in as iqdean ==
+
+2 Install ROS
+
+Set up ROS repositories
+
+Follow Raspbery Pi instructions except for the following differences:
+                                ------
+2.1 liblz4-dev:
+
+Edit /etc/apt/sources.list and add line:
+
+deb http://http.debian.net/debian wheezy-backports main             < ok as is
+
+Install liblz4 with:
+
+sudo apt-get update                                                 < already done above
+
+sudo apt-get install liblz4-dev
+
+Do you want to continue [Y/n]? Y
+Get:1 http://http.debian.net/debian/ wheezy-backports/main liblz4-1 i386 0.0~r114-2~bpo70+1 [19.0 kB]
+Get:2 http://http.debian.net/debian/ wheezy-backports/main liblz4-dev i386 0.0~r114-2~bpo70+1 [23.6 kB]
+Fetched 42.6 kB in 1s (42.1 kB/s)
+dpkg: warning: 'ldconfig' not found in PATH or not executable
+dpkg: warning: 'start-stop-daemon' not found in PATH or not executable
+dpkg: error: 2 expected programs not found in PATH or not executable
+Note: root's PATH should usually contain /usr/local/sbin, /usr/sbin and /sbin
+E: Sub-process /usr/bin/dpkg returned an error code (2)
+iqdean@ubilinux:~$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+
+logout as iqdean and login as root ... see if things install as root
+
+root@ubilinux:~# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+root@ubilinux:~# apt-get install liblz4-dev                              << OK
+...
+Do you want to continue [Y/n]? Y
+Selecting previously unselected package liblz4-1:i386.
+(Reading database ... 27190 files and directories currently installed.)
+Unpacking liblz4-1:i386 (from .../liblz4-1_0.0~r114-2~bpo70+1_i386.deb) ...
+Selecting previously unselected package liblz4-dev:i386.
+Unpacking liblz4-dev:i386 (from .../liblz4-dev_0.0~r114-2~bpo70+1_i386.deb) ...
+Setting up liblz4-1:i386 (0.0~r114-2~bpo70+1) ...
+Setting up liblz4-dev:i386 (0.0~r114-2~bpo70+1) ...
+
+-------------------------------
+http://wiki.ros.org/ROSberryPi 
+-------------------------------
+http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
+--------------------------------------------------------------------------------
+
+1.1 Setup ROS Repositories (Wheezy)
+
+root@ubilinux:~# echo "deb http://packages.ros.org/ros/ubuntu wheezy main" > /etc/apt/sources.list.d/ros-latest.list
+root@ubilinux:~# cat /etc/apt/sources.list.d/ros-latest.list
+deb http://packages.ros.org/ros/ubuntu wheezy main
+
+===
+root@ubilinux:~# wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
+--2015-08-20 05:56:54--  https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 199.27.79.133
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|199.27.79.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1162 (1.1K) [application/octet-stream]
+Saving to: `STDOUT'
+
+100%[======================================>] 1,162       --.-K/s   in 0s
+
+2015-08-20 05:56:59 (2.61 MB/s) - written to stdout [1162/1162]
+
+OK
+
+root@ubilinux:~# apt-key list
+/etc/apt/trusted.gpg
+--------------------
+...
+pub   1024D/B01FA116 2009-12-24
+uid                  ROS Builder <rosbuild@ros.org>           < ok
+sub   2048g/8F3611A0 2009-12-24
+...
+
+1.2 Setup ROS Repositories (Jessie)
+
+root@ubilinux:~# echo "deb http://packages.ros.org/ros/ubuntu jessie main" > /etc/apt/sources.list.d/ros-latest.list
+root@ubilinux:~# wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | apt-key add -
+
+1.2.1 apt-get update
+1.2.2 root@ubilinux:~# apt-get upgrade
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following packages have been kept back:
+  nodejs
+The following packages will be upgraded:
+  bind9-host curl dpkg e2fslibs e2fsprogs file gnupg gpgv hostapd libarchive12
+  libbind9-80 libc-bin libc-dev-bin libc6 libc6-dev libcomerr2 libcurl3
+  libcurl3-gnutls libdns88 libexpat1 libexpat1-dev libgcrypt11 libgnutls26
+  libisc84 libisccc80 libisccfg82 libldap-2.4-2 liblwres80 libmagic1
+  libsqlite3-0 libss2 libssh2-1 libssl-dev libssl-doc libssl1.0.0 libtasn1-3
+  libx11-6 libx11-data libxml2 linux-libc-dev locales multiarch-support ntp
+  openssl tzdata wpasupplicant
+46 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+Need to get 38.5 MB of archives.
+After this operation, 463 kB of additional disk space will be used.
+Do you want to continue [Y/n]? Y
+
+1.3 Install bootstrap dependencies
+
+$ apt-get install python-setuptools python-pip python-yaml python-argparse python-distribute python-docutils python-dateutil python-setuptools python-six
+
+$ pip install rosdep rosinstall_generator wstool rosinstall
+...
+Successfully installed rosdep rosinstall-generator wstool rosinstall catkin-pkg rospkg rosdistro vcstools
+Cleaning up...
+
+1.4 Initializing rosdep
+
+root@ubilinux:~# rosdep init
+Wrote /etc/ros/rosdep/sources.list.d/20-default.list
+Recommended: please run
+
+        rosdep update
+
+root@ubilinux:~# rosdep update
+reading in sources list data from /etc/ros/rosdep/sources.list.d
+Warning: running 'rosdep update' as root is not recommended.
+  You should run 'sudo rosdep fix-permissions' and invoke 'rosdep update' again without sudo.
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/osx-homebrew.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+ERROR: unable to process source [https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml]:
+        <urlopen error [Errno -2] Name or service not known> (https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml)
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/releases/fuerte.yaml
+Query rosdistro index https://raw.githubusercontent.com/ros/rosdistro/master/index.yaml
+Add distro "groovy"
+Add distro "hydro"
+Add distro "indigo"
+Add distro "jade"
+updated cache in /root/.ros/rosdep/sources.cache
+ERROR: Not all sources were able to be updated.
+[[[
+ERROR: unable to process source [https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml]:
+        <urlopen error [Errno -2] Name or service not known> (https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml)
+]]]
+
+=== hmm , so you cant install ros as root ===>> switch to user iqdean, fix path (setup .bashrc), and try again
+
+root@ubilinux:~# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+=== logout root / login iqdean ====
+
+iqdean@ubilinux:~$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+
+iqdean@ubilinux:~$ cat .profile                             < cp this file from /root to /home/iqdean
+
+# ~/.profile: executed by Bourne-compatible login shells.
+PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+           \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\________________ < add this & save it
+if [ "$BASH" ]; then
+  if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+  fi
+fi
+
+mesg n
+
+PYTHONPATH=$PYTHONPATH:$(dirname $(find /usr/local -name mraa.py))
+export PYTHONPATH
+
+NODE_PATH=$NODE_PATH:/usr/local/lib/node_modules
+export NODE_PATH
+
+=== logout iqdean / login iqdean ===
+
+Last login: Thu Aug 20 06:30:01 2015 from iadean-mobl3.hsd1.ca.comcast.net
+iqdean@ubilinux:~$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/usr/local/sbin:/usr/sbin:/sbin
+iqdean@ubilinux:~$ which ldconfig
+/sbin/ldconfig
+iqdean@ubilinux:~$ which rosdep
+/usr/local/bin/rosdep
+iqdean@ubilinux:~$ which rosupdate
+iqdean@ubilinux:~$ which sudo
+/usr/bin/sudo
+
+=== now pick up where we left of ===
+
+1.4 Initializing rosdep
+
+iqdean@ubilinux:~$ sudo rosdep init
+[sudo] password for iqdean:
+ERROR: default sources list file already exists:
+        /etc/ros/rosdep/sources.list.d/20-default.list
+Please delete if you wish to re-initialize
+
+iqdean@ubilinux:~$ sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
+
+iqdean@ubilinux:~$ sudo rosdep init
+Wrote /etc/ros/rosdep/sources.list.d/20-default.list
+Recommended: please run
+
+        rosdep update
+
+iqdean@ubilinux:~$ rosdep update
+reading in sources list data from /etc/ros/rosdep/sources.list.d
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/osx-homebrew.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/releases/fuerte.yaml
+Query rosdistro index https://raw.githubusercontent.com/ros/rosdistro/master/index.yaml
+Add distro "groovy"
+Add distro "hydro"
+Add distro "indigo"
+Add distro "jade"
+updated cache in /home/iqdean/.ros/rosdep/sources.cache
+iqdean@ubilinux:~$
+
+2 Installation
+Now we will download and build ROS Indigo.
+
+2.1 Create a catkin Workspace
+
+$ mkdir ~/ros_catkin_ws
+$ cd ~/ros_catkin_ws
+
+Next we will want to fetch the core packages so we can build them. We will use wstool for this. 
+Select the wstool command for the particular variant you want to install:
+
+ROS-Comm: (recommended) ROS package, build, and communication libraries. No GUI tools.
+====
+iqdean@ubilinux:~/ros_catkin_ws$ rosinstall_generator ros_comm --rosdistro indigo --deps --wet-only --exclude roslisp --tar > indigo-ros_comm-wet.rosinstall
+iqdean@ubilinux:~/ros_catkin_ws$
+
+iqdean@ubilinux:~/ros_catkin_ws$ wstool init src indigo-ros_comm-wet.rosinstall
+Using initial elements from: indigo-ros_comm-wet.rosinstall
+Writing /home/iqdean/ros_catkin_ws/src/.rosinstall
+[catkin] Fetching https://github.com/ros-gbp/catkin-release/archive/release/indigo/catkin/0.6.14-0.tar.gz (version catkin-release-release-indigo-catkin-0.6.14-0) to /home/iqdean/ros_catkin_ws/src/catkin
+[catkin] Done.
+...
+update complete.
+iqdean@ubilinux:~/ros_catkin_ws$
+
+2.2 ==== Resolve Dependencies ====
+
+2.2.1 Dependencies not available in Raspbian Wheezy
+
+For Raspbian Wheezy,                             Ubilinux on Edison
+the following packages are not available:     installed?
+libconsole-bridge-dev,                           n
+liburdfdom-headers-dev, 			 n
+liburdfdom-dev, 				 n
+liblz4-dev, 					 y    <-- from preliminaries (above)  
+collada-dom-dev					 n        assume this is only one needed
+
+2.2.2  Needed for Ros_Comm: 
+       liblz4-dev		<- ok
+       libconsole-bridge-dev    <- need to install
+
+2.2.2.1 These packages can be built from source in a new directory 
+        (Also install checkinstall and cmake):
+
+$ mkdir ~/ros_catkin_ws/external_src			ok
+$ sudo apt-get install checkinstall cmake		ok
+
+$ sudo sh -c 'echo "deb-src http://mirrordirector.raspbian.org/raspbian/ testing main contrib non-free rpi" >> /etc/apt/sources.list'    <- ? skip ?
+$ sudo apt-get update	    ? skip ?
+
+$ cd ~/ros_catkin_ws/external_src			ok
+
+=== side track ===
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ sudo apt-get install console-bridge
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+E: Unable to locate package console-bridge
+=== side track ===
+
+$ sudo apt-get build-dep console-bridge			<-- Unable to find package for console-bridge, so add the repo raspbian.org repo above 
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ sudo apt-get build-dep console-bridge
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+E: Unable to find a source package for console-bridge
+
+=== add the raspbian.org repo that got skipped above 
+$ sudo sh -c 'echo "deb-src http://mirrordirector.raspbian.org/raspbian/ testing main contrib non-free rpi" >> /etc/apt/sources.list'    <-- ok
+$ sudo apt-get update	                                                                                                                 <-- mostly ok
+...
+Ign https://deb.nodesource.com wheezy/main Translation-en_IE
+Ign https://deb.nodesource.com wheezy/main Translation-en
+Fetched 9,334 kB in 40s (232 kB/s)
+Reading package lists... Done
+W: GPG error: http://mirrordirector.raspbian.org testing Release: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 9165938D90FDDD2E
+
+=== retry building console-bridge from source
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ sudo apt-get build-dep console-bridge				< OK
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following NEW packages will be installed:
+  debhelper gettext gettext-base html2text intltool-debian libasprintf0c2 libboost-date-time1.49-dev libboost-date-time1.49.0
+  libboost-serialization1.49-dev libboost-serialization1.49.0 libboost-system-dev libboost-system1.49-dev libboost-system1.49.0
+  libboost-thread-dev libboost-thread1.49-dev libboost-thread1.49.0 libboost1.49-dev libcroco3 libgettextpo0 libicu48 libunistring0
+  po-debconf
+0 upgraded, 22 newly installed, 0 to remove and 1 not upgraded.
+Need to get 18.7 MB of archives.
+After this operation, 130 MB of additional disk space will be used.
+Do you want to continue [Y/n]? Y
+fetching ...
+processing triggers...
+setting up...
+Setting up libboost-date-time1.49-dev (1.49.0-3.2) ...
+Setting up libboost-system1.49.0 (1.49.0-3.2) ...
+Setting up libboost-system1.49-dev (1.49.0-3.2) ...
+Setting up libboost-system-dev (1.49.0.1) ...
+Setting up libboost-thread1.49.0 (1.49.0-3.2) ...
+Setting up libboost-thread1.49-dev (1.49.0-3.2) ...
+Setting up libboost-thread-dev (1.49.0.1) ...
+iqdean@ubilinux:~/ros_catkin_ws/external_src$
+
+RECAP:  libconsole-bridge-dev: Install with the following:
+
+$ cd ~/ros_catkin_ws/external_src						Ok
+$ sudo apt-get build-dep console-bridge						Ok
+$ apt-get source -b console-bridge							< TODO 1
+$ sudo dpkg -i libconsole-bridge0.2_*.deb libconsole-bridge-dev_*.deb			< TODO 2
+
+TODO 1
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ apt-get source -b console-bridge
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+NOTICE: 'console-bridge' packaging is maintained in the 'Git' version control system at:
+git://anonscm.debian.org/debian-science/packages/console-bridge.git
+WARNING: The following packages cannot be authenticated!
+  console-bridge
+E: Some packages could not be authenticated
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ ls -al
+total 8
+drwxr-xr-x 2 iqdean iqdean 4096 Aug 20 18:57 .
+drwxr-xr-x 4 iqdean iqdean 4096 Aug 20 18:57 ..
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ git clone git://anonscm.debian.org/debian-science/packages/console-bridge.git
+Cloning into 'console-bridge'...
+remote: Counting objects: 178, done.
+remote: Compressing objects: 100% (67/67), done.
+remote: Total 178 (delta 99), reused 178 (delta 99)
+Receiving objects: 100% (178/178), 31.26 KiB, done.
+Resolving deltas: 100% (99/99), done.
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ ls
+console-bridge
+
+
+    ====================================
+=== figure out how to build deb packages ===   See 9-1-install-ros-indigo-BldDebPkgFromSRC.txt for details
+    ====================================
+
+=== BEFORE: ===
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ tree
+.
+└── console-bridge
+    ├── CMakeLists.txt
+    ├── console_bridge-config.cmake.in
+    ├── console_bridge.pc.in
+    ├── debian
+    │   ├── changelog
+    │   ├── compat
+    │   ├── control
+    │   ├── copyright
+    │   ├── docs
+    │   ├── libconsole-bridge0.2.install
+    │   ├── libconsole-bridge-dev.install
+    │   ├── patches
+    │   │   ├── 0001-Fix-pkg-config-file-to-respect-prefix-variable.patch
+    │   │   └── series
+    │   ├── rules
+    │   ├── source
+    │   │   └── format
+    │   ├── tests
+    │   │   ├── build
+    │   │   └── control
+    │   └── watch
+    ├── include
+    │   └── console_bridge
+    │       ├── console.h
+    │       └── exportdecl.h
+    └── src
+        └── console.cpp
+
+8 directories, 20 files
+
+=== AFTER ====
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ ls -al
+
+drwxr-xr-x 7 iqdean iqdean  4096 Aug 20 19:47 console-bridge
+...
+-rw-r--r-- 1 iqdean iqdean 12764 Aug 20 19:47 libconsole-bridge0.2_0.2.5-2_i386.deb
+-rw-r--r-- 1 iqdean iqdean 56508 Aug 20 19:47 libconsole-bridge0.2-dbg_0.2.5-2_i386.deb
+-rw-r--r-- 1 iqdean iqdean  5492 Aug 20 19:47 libconsole-bridge-dev_0.2.5-2_i386.deb
+
+
+RECAP:  libconsole-bridge-dev: Install with the following:
+
+$ cd ~/ros_catkin_ws/external_src						Ok
+$ sudo apt-get build-dep console-bridge						Ok
+$ apt-get source -b console-bridge						< initially not ok, had to build deb from src... OK
+$ sudo dpkg -i libconsole-bridge0.2_*.deb libconsole-bridge-dev_*.deb		< TODO 2   
+
+== TODO 2 ===
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ sudo dpkg -i libconsole-bridge0.2_*.deb libconsole-bridge-dev_*.deb
+[sudo] password for iqdean:
+Selecting previously unselected package libconsole-bridge0.2:i386.
+(Reading database ... 44604 files and directories currently installed.)
+Unpacking libconsole-bridge0.2:i386 (from libconsole-bridge0.2_0.2.5-2_i386.deb) ...
+Selecting previously unselected package libconsole-bridge-dev:i386.
+Unpacking libconsole-bridge-dev:i386 (from libconsole-bridge-dev_0.2.5-2_i386.deb) ...
+Setting up libconsole-bridge0.2:i386 (0.2.5-2) ...
+Setting up libconsole-bridge-dev:i386 (0.2.5-2) ...
+iqdean@ubilinux:~/ros_catkin_ws/external_src$
+
+RECAP:  libconsole-bridge-dev: Install with the following:			DONE
+
+$ cd ~/ros_catkin_ws/external_src						Ok
+$ sudo apt-get build-dep console-bridge						Ok
+$ apt-get source -b console-bridge						< initially not ok, had to build deb from src... OK
+$ sudo dpkg -i libconsole-bridge0.2_*.deb libconsole-bridge-dev_*.deb		< OK
+
+==== back to installing ros indigo ===
+
+2.2.3 Resolving Dependencies with rosdep
+
+The remaining dependencies should be resolved by running rosdep:
+
+Wheezy:
+$ cd ~/ros_catkin_ws
+$ rosdep install --from-paths src --ignore-src --rosdistro indigo -y -r --os=debian:wheezy
+
+This will look at all of the packages in the src directory and find all of the dependencies they have. 
+Then it will recursively install the dependencies.
+
+=== check on disk space ===
+
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.3G   33M  98% /		<
+/dev/root        1.4G  1.3G   33M  98% /		< not good
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G   18M  1.3G   2% /home
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ sudo apt-get clean
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  199M  85% /		< a little better, but still low
+/dev/root        1.4G  1.1G  199M  85% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G   18M  1.3G   2% /home     <--- install ros to /home/iqdean/ somewhere
+
+iqdean@ubilinux:/usr$ sudo du -d 1 -h /usr
+61M     /usr/bin
+127M    /usr/include
+334M    /usr/share             <--- delete a bunch of crap from here to free up some space on /
+8.0K    /usr/games
+4.0K    /usr/src
+6.0M    /usr/sbin
+259M    /usr/lib
+26M     /usr/local
+811M    /usr
+
+iqdean@ubilinux:/usr/share$ sudo du -d 1 -h --exclude "/proc/*" / | sort -nr | grep M
+983M    /
+652M    /usr
+116M    /var
+112M    /root
+56M     /lib
+16M     /home
+16M     /boot
+6.7M    /sbin
+6.1M    /bin
+3.6M    /etc
+
+iqdean@ubilinux:/usr/share$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  959M  357M  73% /
+/dev/root        1.4G  959M  357M  73% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G   18M  1.3G   2% /home
+
+=== back to installing ROS indigo on edison ubilinux  ===
+
+2.3 Building the catkin Workspace
+
+Once you have completed downloading the packages and have resolved the dependencies, 
+you are ready to build the catkin packages.
+
+Invoke catkin_make_isolated:
+
+
+$ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/indigo
+
+Note: This will install ROS in the equivalent file location to Ubuntu in /opt/ros/indigo 
+      however you can modify this as you wish.
+
+iqdean@ubilinux:~/ros_catkin_ws$
+iqdean@ubilinux:~/ros_catkin_ws$ mv external_src/ ../				< get rid of cruft
+ 
+
+iqdean@ubilinux:~/ros_catkin_ws$ tree > BEFORE-catkin_make_isolated.txt
+iqdean@ubilinux:~/ros_catkin_ws$ nano BEFORE-catkin_make_isolated.txt		< see what we got in the ROS bld 
+- lots of docs, how to guides, bin, and sources for all the various ros utilities
+
+src/ros
+├── mk
+├── ros
+├── rosbash
+├── rosboost_cfg
+├── rosbuild
+├── rosclean
+├── roscreate
+├── roslang
+├── roslib
+├── rosmake
+└── rosunit
+
+11 directories, 0 files
+
+3 == start ros build ===  change the --install-space to /home/iqdean/ros/indigo   cuz we more space on /home than /opt
+
+FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+$ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+...
+CMake Error at cmake/empy.cmake:29 (message):
+  Unable to find either executable 'empy' or Python module 'em'...  try
+  installing the package 'python-empy'
+Call Stack (most recent call first):
+  cmake/all.cmake:147 (include)
+  CMakeLists.txt:8 (include)
+
+3.1 BUILD ERROR 1 - fix python-empy not found build error
+
+iqdean@ubilinux:~/ros_catkin_ws$ pip install python-empy		< doesn't work
+                               $ sudo pip install python-empy		< doesn't work
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install python-empy	< doesn't work
+
+=== google some more: 
+http://www.diveintopython.net/installing_python/source.html       
+
+iqdean@ubilinux:~/external_src$ wget https://pypi.python.org/packages/source/E/EmPy/empy-3.3.2.tar.gz
+
+iqdean@ubilinux:~/external_src/empy-3.3.2$ tree -L 1    ...hmm, no make file but we got a setup.py  < blding from src NOT!  
+.
+├── COPYING
+├── doc
+├── em.py
+├── README
+├── sample.bench
+├── sample.em
+├── setup.py
+├── test.sh
+└── version.txt
+
+=
+
+=== google some more:     https://packaging.python.org/en/latest/installing.html
+
+Installing from local archives
+
+Install a particular source archive file.
+
+pip install ./downloads/SomeProject-1.0.4.tar.gz
+
+=== THIS FINALLY WORKS:
+
+iqdean@ubilinux:~/external_src$ wget https://pypi.python.org/packages/source/E/EmPy/empy-3.3.2.tar.gz
+iqdean@ubilinux:~/external_src$ sudo pip install empy-3.3.2.tar.gz
+Unpacking ./empy-3.3.2.tar.gz
+  Running setup.py egg_info for package from file:///home/iqdean/external_src/empy-3.3.2.tar.gz
+
+    file emlib.py (for module emlib) not found
+Installing collected packages: empy
+  Running setup.py install for empy
+    file emlib.py (for module emlib) not found
+    file emlib.py (for module emlib) not found
+
+    file emlib.py (for module emlib) not found
+    file emlib.py (for module emlib) not found
+Successfully installed empy
+Cleaning up...
+
+3.1.1 FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+$ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+Starts Building @ Thu Aug 20 15:40:27 PDT 2015
+
+3.2 BUILD ERROR 2 :  Unable to find the requested Boot Libraries 
+
+CMake Error at /usr/share/cmake-2.8/Modules/FindBoost.cmake:1194 (message):
+  Unable to find the requested Boost libraries.
+
+  Boost version: 1.49.0
+
+  Boost include path: /usr/include
+
+  The following Boost libraries could not be found:
+
+          boost_filesystem
+          boost_program_options
+
+  Some (but not all) of the required Boost libraries were found.  You may
+  need to install these additional Boost libraries.  Alternatively, set
+  BOOST_LIBRARYDIR to the directory containing Boost libraries or BOOST_ROOT
+  to the location of Boost.
+
+3.2.1 Fix BUILD ERROR 2 : rqd booost libraries not found   
+
+==== following assumption was not correct, gonna have to install all this stuff ! ====
+
+2.2.1 Dependencies not available in Raspbian Wheezy
+
+For Raspbian Wheezy,                          Ubilinux  now
+the following packages are not available:     
+libconsole-bridge-dev,                           n      y  installed from source
+liburdfdom-headers-dev, 			 n      n
+liburdfdom-dev, 				 n      n
+liblz4-dev, 					 n      y  installed from Jessie repo  
+collada-dom-dev					 n      n
+
+From: http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi#Setup_ROS_Repositories_.28Jessie.29
+-------------------------------------------------------------------------------------------------------------------
+
+REF: dpkg -P pkgname      > COMPLETELY REMOVES a package
+     dpkg -r pkgname      > just removes a package 
+
+3.2.1.1 liburdfdom-headers-dev: Install with the following:
+ 
+$ cd ~/ros_catkin_ws/external_src				Ok
+$ git clone https://github.com/ros/urdfdom_headers.git		Ok
+$ cd urdfdom_headers						Ok
+$ cmake .							Ok
+$ sudo checkinstall make install				
+  When check-install asks for any changes, 
+  the Name (2) needs to change from "urdfdom-headers" to "liburdfdom-headers-dev" 
+  otherwise the rosdep install wont find it.
+
+iqdean@ubilinux:~/external_src/urdfdom_headers$ dpkg -l | grep urdfdom
+ii  liburdfdom-headers-dev             20150820-1                    i386         liburdfdom-headers-dev
+
+3.2.1.2 liburdfdom-dev: Install with the following
+
+$ cd ~/ros_catkin_ws/external_src				Ok
+$ sudo apt-get install libboost-test-dev libtinyxml-dev		Ok
+$ git clone https://github.com/ros/urdfdom.git 			Ok
+$ cd urdfdom							Ok
+$ cmake .							Ok
+$ sudo checkinstall make install
+  When check-install asks for any changes, 
+  the name (2) needs to change from "urdfdom" to "liburdfdom-dev" 
+  otherwise the rosdep install wont find it.
+
+iqdean@ubilinux:~/external_src$ dpkg -l | grep boost-test-dev
+ii  libboost-test-dev                  1.49.0.1                      i386         components for writing and executing test suites (default version)
+iqdean@ubilinux:~/external_src$ dpkg -l | grep tinyxml-dev
+ii  libtinyxml-dev                     2.6.2-1                       i386         TinyXml library - header and static library
+
+iqdean@ubilinux:~/external_src/urdfdom$ dpkg -l | grep urdfdom
+ii  liburdfdom-dev                     20150820-1                    i386         liburdfdom-dev		<< 3.2.1.2  OK
+ii  liburdfdom-headers-dev             20150820-1                    i386         liburdfdom-headers-dev	<< 3.2.1.1  OK
+
+
+3.2.1.3 collada-dom-dev: Install with the following (Note: You will also need to patch collada_urdf as described here):
+
+$ cd ~/ros_catkin_ws/external_src											ok
+$ sudo apt-get install libboost-filesystem-dev libxml2-dev								ok
+$ wget http://downloads.sourceforge.net/project/collada-dom/Collada%20DOM/Collada%20DOM%202.4/collada-dom-2.4.0.tgz	ok
+$ tar -xzf collada-dom-2.4.0.tgz											ok
+$ cd collada-dom-2.4.0													ok
+$ cmake .														ok
+$ sudo checkinstall make install
+  When check-install asks for any changes, 
+  the name (2) needs to change from "collada-dom" to "collada-dom-dev"                                                  ok
+  otherwise the rosdep install wont find it.
+
+[ x%] Building ...   < at a snails pace on edison ... need to figureout how to setup cross-compiler toolchain for edison
+**********************************************************************
+
+ Done. The new package has been installed and saved to
+
+ /home/iqdean/external_src/collada-dom-2.4.0/collada-dom-dev_2.4.0-1_i386.deb       <-- this pecker head took hours to build
+
+ You can remove it from your system anytime using:
+
+      dpkg -r collada-dom-dev
+
+**********************************************************************
+
+iqdean@ubilinux:~/external_src$ dpkg -l | grep boost-file
+ii  libboost-filesystem-dev            1.49.0.1         i386         filesystem operations (portable paths, iteration over directories, etc) in C++ (default version)
+ii  libboost-filesystem1.49-dev        1.49.0-3.2       i386         filesystem operations (portable paths, iteration over directories, etc) in C++
+ii  libboost-filesystem1.49.0          1.49.0-3.2       i386         filesystem operations (portable paths, iteration over directories, etc) in C++
+iqdean@ubilinux:~/external_src$ dpkg -l | grep libxml2
+ii  libxml2:i386                       2.8.0+dfsg1-7+wheezy4         i386         GNOME XML library
+ii  libxml2-dev:i386                   2.8.0+dfsg1-7+wheezy4         i386         Development files for the GNOME XML library
+ii  python-lxml                        2.3.2-1+deb7u1                i386         pythonic binding for the libxml2 and libxslt libraries
+iqdean@ubilinux:~/external_src/collada-dom-2.4.0$ dpkg -l | grep collada
+ii  collada-dom-dev                    2.4.0-1                       i386         collada-dom-dev
+
+
+=== END: 3.2 BUILD ERROR 2 :  Unable to find the requested Boot Libraries  ===
+
+3.3 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+3.4 BUILD Error 3 : boost_program_options  lib not found
+
+-- catkin 0.6.14
+CMake Error at /usr/share/cmake-2.8/Modules/FindBoost.cmake:1194 (message):
+  Unable to find the requested Boost libraries.
+
+  Boost version: 1.49.0
+
+  Boost include path: /usr/include
+
+  The following Boost libraries could not be found:
+
+          boost_program_options
+
+  Some (but not all) of the required Boost libraries were found.  You may
+  need to install these additional Boost libraries.  Alternatively, set
+  BOOST_LIBRARYDIR to the directory containing Boost libraries or BOOST_ROOT
+  to the location of Boost.
+
+3.4.1 START: FIX BUILD Error 3 : boost_program_options  lib not found
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-cache search boost-program-options
+libboost-program-options-dev - program options library for C++ (default version)
+libboost-program-options1.49-dev - program options library for C++
+libboost-program-options1.49.0 - program options library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install libboost-program-options-dev
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep libboost-program-options
+ii  libboost-program-options-dev       1.49.0.1                      i386         program options library for C++ (default version)
+ii  libboost-program-options1.49-dev   1.49.0-3.2                    i386         program options library for C++
+ii  libboost-program-options1.49.0     1.49.0-3.2                    i386         program options library for C++
+
+$ sudo apt-get clean
+
+iqdean@ubilinux:~/ros_catkin_ws$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  996M  320M  76% /
+/dev/root        1.4G  996M  320M  76% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  381M  910M  30% /home
+
+3.4.1 END: FIX BUILD Error 3 : boost_program_options  lib not found
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[23 of 48 ] rospack   <-- finally this pecker head gets past the deps and starts building ...
+[24 of 48 ] roslib
+[25 of 48 ] rosparam
+ 27 of 48   rospy
+ 28         rosservice
+ 29	    rostime
+ 30	    roscpp_serialization
+ 31	    roslaunch
+ 32	    rosunit
+ 33	    rosconsole
+ 34	    roslz4
+ 35	    rosbag_storage	Fails   Boost lib boost_regex  not found
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-cache search boost-regex
+libboost-regex-dev - regular expression library for C++ (default version)
+libboost-regex1.49-dev - regular expression library for C++
+libboost-regex1.49.0 - regular expression library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install libboost-regex-dev
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[35 of 48]  rosbag_storage       Fails could not file BZip2 libraries 
+
+CMake Error at /usr/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:97 (MESSAGE):
+  Could NOT find BZip2 (missing: BZIP2_LIBRARIES BZIP2_INCLUDE_DIR)				<---- 
+Call Stack (most recent call first):
+  /usr/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:288 (_FPHSA_FAILURE_MESSAGE)
+  /usr/share/cmake-2.8/Modules/FindBZip2.cmake:47 (FIND_PACKAGE_HANDLE_STANDARD_ARGS)
+  CMakeLists.txt:8 (find_package)
+  
+
+$ sudo apt-get install libbz2-dev
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep bz2
+ii  libbz2-1.0:i386                    1.0.6-4                       i386         high-quality block-sorting file compressor library - runtime
+ii  libbz2-dev:i386                    1.0.6-4                       i386         high-quality block-sorting file compressor library - development
+
+3.6 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[36 of 48]   rostest       ok
+[37 of 48]   std_messges   ok
+ 38 of 48    rosgraph      ok
+ 39 of 48    stdsrvs       ok
+ 40 of 48    xmlrpcpp      fails - boost_signals lib not found
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-cache search boost-signal
+libboost-signals-dev - managed signals and slots library for C++ (default version)
+libboost-signals1.49-dev - managed signals and slots library for C++
+libboost-signals1.49.0 - managed signals and slots library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install libboost-signals-dev
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l |grep boost-signals
+ii  libboost-signals-dev               1.49.0.1                      i386         managed signals and slots library for C++ (default version)
+ii  libboost-signals1.49-dev           1.49.0-3.2                    i386         managed signals and slots library for C++
+ii  libboost-signals1.49.0             1.49.0-3.2                    i386         managed signals and slots library for C++
+
+3.7 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[36 of 48]   rostest       ok
+[37 of 48]   std_msgs      ok
+ 38 of 48    rosgraph      ok
+ 39 of 48    std_srvs      ok
+ 40 of 48    xmlrpcpp      ok
+ 41          roscpp        ok
+ 42          rosout        FAILS due to LINK ERROR
+
+[100%] Building CXX object CMakeFiles/rosout.dir/rosout.cpp.o
+Linking CXX executable /home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::verify_options(unsigned int, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_mem_block()'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > >::maybe_assign(boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > > const&)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::perl_matcher<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > >, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::construct_init(boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > > const&, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform_primary(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_default_error_string(boost::regex_constants::error_type)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::put_mem_block(void*)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::do_assign(char const*, char const*, unsigned int)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::raise_runtime_error(std::runtime_error const&)'
+collect2: error: ld returned 1 exit status
+make[2]: *** [/home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout] Error 1
+make[1]: *** [CMakeFiles/rosout.dir/all] Error 2
+make: *** [all] Error 2
+<== Failed to process package 'rosout':
+  Command '['/home/iqdean/ros/indigo/env.sh', 'make', '-j2', '-l2']' returned non-zero exit status 2
+
+Reproduce this error by running:
+==> cd /home/iqdean/ros_catkin_ws/build_isolated/rosout && /home/iqdean/ros/indigo/env.sh make -j2 -l2
+
+Command failed, exiting.
+
+DEBUG LINK ERROR - 
+ 
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 /usr/lib/libboost_regex.a
+lrwxrwxrwx 1 root root      16 Feb  4  2013 /usr/lib/libboost_regex-mt.a -> libboost_regex.a
+lrwxrwxrwx 1 root root      24 Feb  4  2013 /usr/lib/libboost_regex-mt.so -> libboost_regex.so.1.49.0
+lrwxrwxrwx 1 root root      24 Feb  4  2013 /usr/lib/libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 /usr/lib/libboost_regex.so.1.49.0
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep boost-regex
+ii  libboost-regex-dev                 1.49.0.1                      i386         regular expression library for C++ (default version)
+ii  libboost-regex1.49-dev             1.49.0-3.2                    i386         regular expression library for C++
+ii  libboost-regex1.49.0               1.49.0-3.2                    i386         regular expression library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -L libboost-regex-dev
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/libboost-regex-dev
+/usr/share/doc/libboost-regex-dev/changelog.gz
+/usr/share/doc/libboost-regex-dev/copyright
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -L libboost-regex1.49-dev
+/.
+/usr
+/usr/lib
+/usr/lib/libboost_regex.a                        <
+/usr/share
+/usr/share/doc
+/usr/share/doc/libboost-regex1.49-dev
+/usr/share/doc/libboost-regex1.49-dev/changelog.Debian.gz
+/usr/share/doc/libboost-regex1.49-dev/README.Debian.gz
+/usr/share/doc/libboost-regex1.49-dev/copyright
+/usr/share/doc/libboost-regex1.49-dev/NEWS.Debian.gz
+/usr/lib/libboost_regex-mt.so
+/usr/lib/libboost_regex.so
+/usr/lib/libboost_regex-mt.a
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -L libboost-regex1.49.0
+/.
+/usr
+/usr/lib
+/usr/lib/libboost_regex.so.1.49.0                 <
+/usr/share
+/usr/share/doc
+/usr/share/doc/libboost-regex1.49.0
+/usr/share/doc/libboost-regex1.49.0/changelog.Debian.gz
+/usr/share/doc/libboost-regex1.49.0/README.Debian.gz
+/usr/share/doc/libboost-regex1.49.0/copyright
+/usr/share/doc/libboost-regex1.49.0/NEWS.Debian.gz
+/usr/share/lintian
+/usr/share/lintian/overrides
+/usr/share/lintian/overrides/libboost-regex1.49.0
+
+====
+iqdean@ubilinux:/usr/lib$ ls -al libboost_regex*
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 libboost_regex.a
+lrwxrwxrwx 1 root root      16 Feb  4  2013 libboost_regex-mt.a -> libboost_regex.a
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex-mt.so -> libboost_regex.so.1.49.0
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 libboost_regex.so.1.49.0
+iqdean@ubilinux:/usr/lib$ sudo rm libboost_regex-mt.*
+[sudo] password for iqdean:
+iqdean@ubilinux:/usr/lib$ ls -al libboost_regex*
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 libboost_regex.a
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 libboost_regex.so.1.49.0
+iqdean@ubilinux:/usr/lib$
+
+=== still same error ... need to fig out how/where cmake linker settings are ??
+iqdean@ubilinux:/usr/lib$  cd /home/iqdean/ros_catkin_ws/build_isolated/rosout
+iqdean@ubilinux:~/ros_catkin_ws/build_isolated/rosout$ sudo /home/iqdean/ros/indigo/env.sh make -j2 -l2
+Linking CXX executable /home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::verify_options(unsigned int, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_mem_block()'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > >::maybe_assign(boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > > const&)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::perl_matcher<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > >, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::construct_init(boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > > const&, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform_primary(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_default_error_string(boost::regex_constants::error_type)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::put_mem_block(void*)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::do_assign(char const*, char const*, unsigned int)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::raise_runtime_error(std::runtime_error const&)'
+collect2: error: ld returned 1 exit status
+make[2]: *** [/home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout] Error 1
+make[1]: *** [CMakeFiles/rosout.dir/all] Error 2
+make: *** [all] Error 2
+
+=====
+iqdean@ubilinux:~/ros_catkin_ws/build_isolated/rosout$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  237M  83% /
+/dev/root        1.4G  1.1G  237M  83% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  419M  872M  33% /home
+
+=== RECAP ====
+
+3.4.1 END: FIX BUILD Error 3 : boost_program_options  lib not found
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[23 of 48 ] rospack   <-- finally this pecker head gets past the deps and starts building ...
+[24 of 48 ] roslib
+[25 of 48 ] rosparam
+ 27 of 48   rospy
+ 28         rosservice
+ 29	    rostime
+ 30	    roscpp_serialization
+ 31	    roslaunch
+ 32	    rosunit
+ 33	    rosconsole          <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< (A) rosconsole got built BEFORE libboost-regex-dev got installed
+ 34	    roslz4
+ 35	    rosbag_storage	Fails   Boost lib boost_regex  not found
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-cache search boost-regex
+libboost-regex-dev - regular expression library for C++ (default version)
+libboost-regex1.49-dev - regular expression library for C++
+libboost-regex1.49.0 - regular expression library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install libboost-regex-dev  <<<<<< (B) rosbag_storage built AFTER libboost-regex-dev got installed
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[35 of 48]  rosbag_storage       Fails could not file BZip2 libraries 
+
+
+(C) HMM, now that all the dependend libraries have been installed, try starting fresh with the ros indigo build
+
+
+
+

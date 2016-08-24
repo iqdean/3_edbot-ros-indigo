@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rosmsg
+Description: Description of rosmsg
+Version: 1.11.13
+Cflags: 
+Libs: -L/home/ros/indigo/lib 
+Requires: 

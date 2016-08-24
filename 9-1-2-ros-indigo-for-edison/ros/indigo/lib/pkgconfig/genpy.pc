@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: genpy
+Description: Description of genpy
+Version: 0.5.4
+Cflags: 
+Libs: -L/home/ros/indigo/lib 
+Requires: genmsg

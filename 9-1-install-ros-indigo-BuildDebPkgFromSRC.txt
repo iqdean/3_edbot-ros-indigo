@@ -1,0 +1,375 @@
+
+=== BEFORE: ===
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ tree
+.
+└── console-bridge
+    ├── CMakeLists.txt
+    ├── console_bridge-config.cmake.in
+    ├── console_bridge.pc.in
+    ├── debian
+    │   ├── changelog
+    │   ├── compat
+    │   ├── control
+    │   ├── copyright
+    │   ├── docs
+    │   ├── libconsole-bridge0.2.install
+    │   ├── libconsole-bridge-dev.install
+    │   ├── patches
+    │   │   ├── 0001-Fix-pkg-config-file-to-respect-prefix-variable.patch
+    │   │   └── series
+    │   ├── rules
+    │   ├── source
+    │   │   └── format
+    │   ├── tests
+    │   │   ├── build
+    │   │   └── control
+    │   └── watch
+    ├── include
+    │   └── console_bridge
+    │       ├── console.h
+    │       └── exportdecl.h
+    └── src
+        └── console.cpp
+
+8 directories, 20 files
+
+
+https://wiki.debian.org/BuildingTutorial
+
+build-essential		< ok
+fakeroot		< ok
+devscripts		< install: $ sudo apt-get install devscripts
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge$ which debuild
+/usr/bin/debuild
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge$ ls
+CMakeLists.txt  console_bridge-config.cmake.in  console_bridge.pc.in  debian  include  src
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge$ cd debian
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge/debian$ ls
+changelog  control    docs                          libconsole-bridge-dev.install  rules   tests
+compat     copyright  libconsole-bridge0.2.install  patches                        source  watch
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge/debian$ debuild -b -uc -us
+ dpkg-buildpackage -rfakeroot -D -us -uc -b
+dpkg-buildpackage: source package console-bridge
+dpkg-buildpackage: source version 0.2.5-2
+dpkg-buildpackage: source changed by Jose Luis Rivero <jrivero@osrfoundation.org>
+ dpkg-source --before-build console-bridge
+dpkg-buildpackage: host architecture i386
+dpkg-source: info: applying 0001-Fix-pkg-config-file-to-respect-prefix-variable.patch
+ fakeroot debian/rules clean
+dh  clean --parallel
+   dh_testdir -O--parallel
+   debian/rules override_dh_auto_clean
+make[1]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge'
+rm -f console_bridge-config.cmake
+rm -f console_bridge.pc
+dh_auto_clean --
+make[1]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge'
+   dh_clean -O--parallel
+ debian/rules build
+dh  build --parallel
+   dh_testdir -O--parallel
+   dh_auto_configure -O--parallel
+-- The C compiler identification is GNU 4.7.2
+-- The CXX compiler identification is GNU 4.7.2
+-- Check for working C compiler: /usr/bin/gcc
+-- Check for working C compiler: /usr/bin/gcc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Performing Test HAS_VISIBILITY
+-- Performing Test HAS_VISIBILITY - Success
+-- Boost version: 1.49.0
+-- Found the following Boost libraries:
+--   system
+--   thread
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu
+   dh_auto_build -O--parallel
+make[1]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -H/home/iqdean/ros_catkin_ws/external_src/console-bridge -B/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles/progress.marks
+make -f CMakeFiles/Makefile2 all
+make[2]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make -f CMakeFiles/console_bridge.dir/build.make CMakeFiles/console_bridge.dir/depend
+make[3]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+cd /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/iqdean/ros_catkin_ws/external_src/console-bridge /home/iqdean/ros_catkin_ws/external_src/console-bridge /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles/console_bridge.dir/DependInfo.cmake --color=
+Scanning dependencies of target console_bridge
+make[3]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make -f CMakeFiles/console_bridge.dir/build.make CMakeFiles/console_bridge.dir/build
+make[3]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -E cmake_progress_report /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles 1
+[100%] Building CXX object CMakeFiles/console_bridge.dir/src/console.cpp.o
+/usr/bin/c++   -Dconsole_bridge_EXPORTS -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2  -fvisibility=hidden -O3 -DNDEBUG -fPIC -I/home/iqdean/ros_catkin_ws/external_src/console-bridge/include    -o CMakeFiles/console_bridge.dir/src/console.cpp.o -c /home/iqdean/ros_catkin_ws/external_src/console-bridge/src/console.cpp
+Linking CXX shared library libconsole_bridge.so
+/usr/bin/cmake -E cmake_link_script CMakeFiles/console_bridge.dir/link.txt --verbose=1
+/usr/bin/c++  -fPIC -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2  -fvisibility=hidden -O3 -DNDEBUG  -Wl,-z,relro -shared -Wl,-soname,libconsole_bridge.so.0.2 -o libconsole_bridge.so.0.2 CMakeFiles/console_bridge.dir/src/console.cpp.o -lboost_system-mt -lboost_thread-mt -lpthread
+/usr/bin/cmake -E cmake_symlink_library libconsole_bridge.so.0.2 libconsole_bridge.so.0.2 libconsole_bridge.so
+make[3]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -E cmake_progress_report /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles  1
+[100%] Built target console_bridge
+make[2]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -E cmake_progress_start /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles 0
+make[1]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+   dh_auto_test -O--parallel
+ fakeroot debian/rules binary
+dh  binary --parallel
+   dh_testroot -O--parallel
+   dh_prep -O--parallel
+   dh_installdirs -O--parallel
+   dh_auto_install -O--parallel
+make[1]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -H/home/iqdean/ros_catkin_ws/external_src/console-bridge -B/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles/progress.marks
+make -f CMakeFiles/Makefile2 all
+make[2]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make -f CMakeFiles/console_bridge.dir/build.make CMakeFiles/console_bridge.dir/depend
+make[3]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+cd /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /home/iqdean/ros_catkin_ws/external_src/console-bridge /home/iqdean/ros_catkin_ws/external_src/console-bridge /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles/console_bridge.dir/DependInfo.cmake --color=
+make[3]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make -f CMakeFiles/console_bridge.dir/build.make CMakeFiles/console_bridge.dir/build
+make[3]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make[3]: Nothing to be done for `CMakeFiles/console_bridge.dir/build'.
+make[3]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -E cmake_progress_report /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles  1
+[100%] Built target console_bridge
+make[2]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+/usr/bin/cmake -E cmake_progress_start /home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu/CMakeFiles 0
+make -f CMakeFiles/Makefile2 preinstall
+make[2]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+make[2]: Nothing to be done for `preinstall'.
+make[2]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+Install the project...
+/usr/bin/cmake -P cmake_install.cmake
+-- Install configuration: "Release"
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/lib/i386-linux-gnu/libconsole_bridge.so.0.2
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/lib/i386-linux-gnu/libconsole_bridge.so
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/include
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/include/console_bridge
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/include/console_bridge/exportdecl.h
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/include/console_bridge/console.h
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/share/console_bridge/cmake/console_bridge-config.cmake
+-- Installing: /home/iqdean/ros_catkin_ws/external_src/console-bridge/debian/tmp/usr/lib/i386-linux-gnu/pkgconfig/console_bridge.pc
+make[1]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge/obj-i486-linux-gnu'
+   dh_install -O--parallel
+   dh_installdocs -O--parallel
+   dh_installchangelogs -O--parallel
+   dh_installexamples -O--parallel
+   dh_installman -O--parallel
+   dh_installcatalogs -O--parallel
+   dh_installcron -O--parallel
+   dh_installdebconf -O--parallel
+   dh_installemacsen -O--parallel
+   dh_installifupdown -O--parallel
+   dh_installinfo -O--parallel
+   dh_installinit -O--parallel
+   dh_installmenu -O--parallel
+   dh_installmime -O--parallel
+   dh_installmodules -O--parallel
+   dh_installlogcheck -O--parallel
+   dh_installlogrotate -O--parallel
+   dh_installpam -O--parallel
+   dh_installppp -O--parallel
+   dh_installudev -O--parallel
+   dh_installwm -O--parallel
+   dh_installxfonts -O--parallel
+   dh_installgsettings -O--parallel
+   dh_bugfiles -O--parallel
+   dh_ucf -O--parallel
+   dh_lintian -O--parallel
+   dh_gconf -O--parallel
+   dh_icons -O--parallel
+   dh_perl -O--parallel
+   dh_usrlocal -O--parallel
+   dh_link -O--parallel
+   dh_compress -O--parallel
+   dh_fixperms -O--parallel
+   debian/rules override_dh_strip
+make[1]: Entering directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge'
+dh_strip -a --dbg-package=libconsole-bridge0.2-dbg
+make[1]: Leaving directory `/home/iqdean/ros_catkin_ws/external_src/console-bridge'
+   dh_makeshlibs -O--parallel
+   dh_shlibdeps -O--parallel
+dpkg-shlibdeps: warning: package could avoid a useless dependency if debian/libconsole-bridge0.2/usr/lib/i386-linux-gnu/libconsole_bridge.so.0.2 was not linked against libboost_thread.so.1.49.0 (it uses none of the library's symbols)
+dpkg-shlibdeps: warning: package could avoid a useless dependency if debian/libconsole-bridge0.2/usr/lib/i386-linux-gnu/libconsole_bridge.so.0.2 was not linked against libboost_system.so.1.49.0 (it uses none of the library's symbols)
+   dh_installdeb -O--parallel
+   dh_gencontrol -O--parallel
+   dh_md5sums -O--parallel
+   dh_builddeb -O--parallel
+dpkg-deb: building package `libconsole-bridge0.2' in `../libconsole-bridge0.2_0.2.5-2_i386.deb'.
+dpkg-deb: building package `libconsole-bridge-dev' in `../libconsole-bridge-dev_0.2.5-2_i386.deb'.
+dpkg-deb: building package `libconsole-bridge0.2-dbg' in `../libconsole-bridge0.2-dbg_0.2.5-2_i386.deb'.
+ dpkg-genchanges -b >../console-bridge_0.2.5-2_i386.changes
+dpkg-genchanges: binary-only upload - not including any source code
+ dpkg-source --after-build console-bridge
+dpkg-source: info: unapplying 0001-Fix-pkg-config-file-to-respect-prefix-variable.patch
+dpkg-buildpackage: binary only upload (no source included)
+Now running lintian...
+Finished running lintian.
+iqdean@ubilinux:~/ros_catkin_ws/external_src/console-bridge/debian$
+
+=== AFTER ===
+
+iqdean@ubilinux:~/ros_catkin_ws/external_src$ tree
+.
+├── console-bridge
+│   ├── CMakeLists.txt
+│   ├── console_bridge-config.cmake.in
+│   ├── console_bridge.pc.in
+│   ├── debian
+│   │   ├── changelog
+│   │   ├── compat
+│   │   ├── control
+│   │   ├── copyright
+│   │   ├── docs
+│   │   ├── files
+│   │   ├── libconsole-bridge0.2
+│   │   │   ├── DEBIAN
+│   │   │   │   ├── control
+│   │   │   │   ├── md5sums
+│   │   │   │   ├── postinst
+│   │   │   │   ├── postrm
+│   │   │   │   └── shlibs
+│   │   │   └── usr
+│   │   │       ├── lib
+│   │   │       │   └── i386-linux-gnu
+│   │   │       │       └── libconsole_bridge.so.0.2
+│   │   │       └── share
+│   │   │           └── doc
+│   │   │               └── libconsole-bridge0.2
+│   │   │                   ├── changelog.Debian.gz
+│   │   │                   └── copyright
+│   │   ├── libconsole-bridge0.2-dbg
+│   │   │   ├── DEBIAN
+│   │   │   │   ├── control
+│   │   │   │   └── md5sums
+│   │   │   └── usr
+│   │   │       ├── lib
+│   │   │       │   └── debug
+│   │   │       └── share
+│   │   │           └── doc
+│   │   │               └── libconsole-bridge0.2-dbg
+│   │   │                   ├── changelog.Debian.gz
+│   │   │                   └── copyright
+│   │   ├── libconsole-bridge0.2-dbg.debhelper.log
+│   │   ├── libconsole-bridge0.2-dbg.substvars
+│   │   ├── libconsole-bridge0.2.debhelper.log
+│   │   ├── libconsole-bridge0.2.install
+│   │   ├── libconsole-bridge0.2.postinst.debhelper
+│   │   ├── libconsole-bridge0.2.postrm.debhelper
+│   │   ├── libconsole-bridge0.2.substvars
+│   │   ├── libconsole-bridge-dev
+│   │   │   ├── DEBIAN
+│   │   │   │   ├── control
+│   │   │   │   └── md5sums
+│   │   │   └── usr
+│   │   │       ├── include
+│   │   │       │   └── console_bridge
+│   │   │       │       ├── console.h
+│   │   │       │       └── exportdecl.h
+│   │   │       ├── lib
+│   │   │       │   └── i386-linux-gnu
+│   │   │       │       ├── libconsole_bridge.so -> libconsole_bridge.so.0.2
+│   │   │       │       └── pkgconfig
+│   │   │       │           └── console_bridge.pc
+│   │   │       └── share
+│   │   │           ├── console_bridge
+│   │   │           │   └── cmake
+│   │   │           │       └── console_bridge-config.cmake
+│   │   │           └── doc
+│   │   │               └── libconsole-bridge-dev
+│   │   │                   ├── changelog.Debian.gz
+│   │   │                   └── copyright
+│   │   ├── libconsole-bridge-dev.debhelper.log
+│   │   ├── libconsole-bridge-dev.install
+│   │   ├── libconsole-bridge-dev.substvars
+│   │   ├── patches
+│   │   │   ├── 0001-Fix-pkg-config-file-to-respect-prefix-variable.patch
+│   │   │   └── series
+│   │   ├── rules
+│   │   ├── source
+│   │   │   └── format
+│   │   ├── tests
+│   │   │   ├── build
+│   │   │   └── control
+│   │   ├── tmp
+│   │   │   └── usr
+│   │   │       ├── include
+│   │   │       │   └── console_bridge
+│   │   │       │       ├── console.h
+│   │   │       │       └── exportdecl.h
+│   │   │       ├── lib
+│   │   │       │   └── i386-linux-gnu
+│   │   │       │       ├── libconsole_bridge.so -> libconsole_bridge.so.0.2
+│   │   │       │       ├── libconsole_bridge.so.0.2
+│   │   │       │       └── pkgconfig
+│   │   │       │           └── console_bridge.pc
+│   │   │       └── share
+│   │   │           └── console_bridge
+│   │   │               └── cmake
+│   │   │                   └── console_bridge-config.cmake
+│   │   └── watch
+│   ├── include
+│   │   └── console_bridge
+│   │       ├── console.h
+│   │       └── exportdecl.h
+│   ├── obj-i486-linux-gnu
+│   │   ├── CMakeCache.txt
+│   │   ├── CMakeFiles
+│   │   │   ├── CMakeCCompiler.cmake
+│   │   │   ├── cmake.check_cache
+│   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   ├── CMakeDirectoryInformation.cmake
+│   │   │   ├── CMakeOutput.log
+│   │   │   ├── CMakeSystem.cmake
+│   │   │   ├── CMakeTmp
+│   │   │   ├── CompilerIdC
+│   │   │   │   ├── a.out
+│   │   │   │   └── CMakeCCompilerId.c
+│   │   │   ├── CompilerIdCXX
+│   │   │   │   ├── a.out
+│   │   │   │   └── CMakeCXXCompilerId.cpp
+│   │   │   ├── console_bridge.dir
+│   │   │   │   ├── build.make
+│   │   │   │   ├── cmake_clean.cmake
+│   │   │   │   ├── CXX.includecache
+│   │   │   │   ├── DependInfo.cmake
+│   │   │   │   ├── depend.internal
+│   │   │   │   ├── depend.make
+│   │   │   │   ├── flags.make
+│   │   │   │   ├── link.txt
+│   │   │   │   ├── progress.make
+│   │   │   │   └── src
+│   │   │   │       └── console.cpp.o
+│   │   │   ├── Makefile2
+│   │   │   ├── Makefile.cmake
+│   │   │   ├── progress.marks
+│   │   │   └── TargetDirectories.txt
+│   │   ├── cmake_install.cmake
+│   │   ├── home
+│   │   │   └── iqdean
+│   │   │       └── ros_catkin_ws
+│   │   │           └── external_src
+│   │   │               └── console-bridge
+│   │   │                   ├── console_bridge-config.cmake
+│   │   │                   └── console_bridge.pc
+│   │   ├── install_manifest.txt
+│   │   ├── libconsole_bridge.so -> libconsole_bridge.so.0.2
+│   │   ├── libconsole_bridge.so.0.2
+│   │   └── Makefile
+│   └── src
+│       └── console.cpp
+├── console-bridge_0.2.5-2_i386.build
+├── console-bridge_0.2.5-2_i386.changes
+├── libconsole-bridge0.2_0.2.5-2_i386.deb
+├── libconsole-bridge0.2-dbg_0.2.5-2_i386.deb
+└── libconsole-bridge-dev_0.2.5-2_i386.deb
+
+59 directories, 95 files

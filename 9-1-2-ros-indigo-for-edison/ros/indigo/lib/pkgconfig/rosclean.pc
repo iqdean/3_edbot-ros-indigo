@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rosclean
+Description: Description of rosclean
+Version: 1.11.8
+Cflags: 
+Libs: -L/home/ros/indigo/lib 
+Requires: 

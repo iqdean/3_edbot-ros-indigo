@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: std_msgs
+Description: Description of std_msgs
+Version: 0.5.9
+Cflags: -I/home/ros/indigo/include
+Libs: -L/home/ros/indigo/lib 
+Requires: message_runtime

@@ -1,0 +1,632 @@
+(C) HMM, now that all the dependend libraries have been installed, try starting fresh with the ros indigo build
+
+====
+
+iqdean@ubilinux:/usr/lib$ ls -al libboost_regex*
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 libboost_regex.a
+lrwxrwxrwx 1 root root      16 Feb  4  2013 libboost_regex-mt.a -> libboost_regex.a
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex-mt.so -> libboost_regex.so.1.49.0
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 libboost_regex.so.1.49.0
+iqdean@ubilinux:/usr/lib$ sudo rm libboost_regex-mt.*
+[sudo] password for iqdean:
+iqdean@ubilinux:/usr/lib$ ls -al libboost_regex*
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 libboost_regex.a
+lrwxrwxrwx 1 root root      24 Feb  4  2013 libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 libboost_regex.so.1.49.0
+iqdean@ubilinux:/usr/lib$
+
+=== still same error ... need to fig out how/where cmake linker settings are ??
+iqdean@ubilinux:/usr/lib$  cd /home/iqdean/ros_catkin_ws/build_isolated/rosout
+iqdean@ubilinux:~/ros_catkin_ws/build_isolated/rosout$ sudo /home/iqdean/ros/indigo/env.sh make -j2 -l2
+Linking CXX executable /home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::verify_options(unsigned int, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_mem_block()'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > >::maybe_assign(boost::match_results<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > > > const&)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::perl_matcher<__gnu_cxx::__normal_iterator<char const*, std::string>, std::allocator<boost::sub_match<__gnu_cxx::__normal_iterator<char const*, std::string> > >, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::construct_init(boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > > const&, boost::regex_constants::_match_flags)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform_primary(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::get_default_error_string(boost::regex_constants::error_type)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::cpp_regex_traits_implementation<char>::transform(char const*, char const*) const'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::put_mem_block(void*)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::basic_regex<char, boost::regex_traits<char, boost::cpp_regex_traits<char> > >::do_assign(char const*, char const*, unsigned int)'
+/home/iqdean/ros/indigo/lib/librosconsole.so: undefined reference to `boost::re_detail::raise_runtime_error(std::runtime_error const&)'
+collect2: error: ld returned 1 exit status
+make[2]: *** [/home/iqdean/ros_catkin_ws/devel_isolated/rosout/lib/rosout/rosout] Error 1
+make[1]: *** [CMakeFiles/rosout.dir/all] Error 2
+make: *** [all] Error 2
+
+=====
+iqdean@ubilinux:~/ros_catkin_ws/build_isolated/rosout$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  237M  83% /
+/dev/root        1.4G  1.1G  237M  83% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  419M  872M  33% /home
+
+=== RECAP ====
+
+3.4.1 END: FIX BUILD Error 3 : boost_program_options  lib not found
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[23 of 48 ] rospack   <-- finally this pecker head gets past the deps and starts building ...
+[24 of 48 ] roslib
+[25 of 48 ] rosparam
+ 27 of 48   rospy
+ 28         rosservice
+ 29	    rostime
+ 30	    roscpp_serialization
+ 31	    roslaunch
+ 32	    rosunit
+ 33	    rosconsole          <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< (A) rosconsole got built BEFORE libboost-regex-dev got installed
+ 34	    roslz4
+ 35	    rosbag_storage	Fails   Boost lib boost_regex  not found
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-cache search boost-regex
+libboost-regex-dev - regular expression library for C++ (default version)
+libboost-regex1.49-dev - regular expression library for C++
+libboost-regex1.49.0 - regular expression library for C++
+
+iqdean@ubilinux:~/ros_catkin_ws$ sudo apt-get install libboost-regex-dev  <<<<<< (B) rosbag_storage built AFTER libboost-regex-dev got installed
+
+3.5 retry ROS Build
+
+    FROM:  iqdean@ubilinux:~/ros_catkin_ws$
+    $ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/iqdean/ros/indigo
+
+[35 of 48]  rosbag_storage       Fails could not file BZip2 libraries 
+
+
+(C) HMM, now that all the dependend libraries have been installed, try starting fresh with the ros indigo build
+
+==== since we screwed with the libboost-regex-dev installation, purge this debian and reinstall just the regex1.49 ===
+~$ sudo dpkg -P libboost-regex-dev
+~$ sudo dpkg -P libboost-regex1.49-dev
+~$ sudo dpkg -P libboost-regex1.49.0
+iqdean@ubilinux:~$ dpkg -l | grep boost-regex   <- no boost-regex libs
+~$ sudo apt-get install libboost-regex1.49.0
+~$ sudo apt-get install libboost-regex1.49-dev
+
+iqdean@ubilinux:~$ dpkg -l | grep boost-regex
+ii  libboost-regex1.49-dev             1.49.0-3.2                    i386         regular expression library for C++
+ii  libboost-regex1.49.0               1.49.0-3.2                    i386         regular expression library for C++
+
+iqdean@ubilinux:~$ ls -al /usr/lib/libboost_regex*
+-rw-r--r-- 1 root root 2376054 Feb  4  2013 /usr/lib/libboost_regex.a
+lrwxrwxrwx 1 root root      16 Feb  4  2013 /usr/lib/libboost_regex-mt.a -> libboost_regex.a             \
+lrwxrwxrwx 1 root root      24 Feb  4  2013 /usr/lib/libboost_regex-mt.so -> libboost_regex.so.1.49.0    / hmm, still got this _regex-mt but we got boost_regex reinstld
+lrwxrwxrwx 1 root root      24 Feb  4  2013 /usr/lib/libboost_regex.so -> libboost_regex.so.1.49.0
+-rw-r--r-- 1 root root 1109436 Feb  4  2013 /usr/lib/libboost_regex.so.1.49.0
+iqdean@ubilinux:~$
+
+-------------------------------
+http://wiki.ros.org/ROSberryPi 
+-------------------------------
+http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
+--------------------------------------------------------------------------------
+
+Per 9-install-ros-indigo-on-ubilinux-on-edison.txt, all the depend libraries and packages for building ros should
+now be alread installed, so wipe the current build tree and start over
+
+2 Installation
+Now we will download and build ROS Indigo.
+
+2.1 In order to build the core packages, you will need a catkin workspace. Create one now:
+
+$ mkdir ~/ros_catkin_ws
+$ cd ~/ros_catkin_ws
+
+=== see what we got now... 
+
+iqdean@ubilinux:~$ tree -L 1
+.
+├── external_src	< this is where all the depend libs that weren't in git where built from src     < keep this
+├── ros			< this is the ros install directory specd to the build process later     	 < $ rm -rf   wipe this dir
+└── ros_catkin_ws	< this is the existing ros_catkin_ws 	     	       	       			 < $ rm -rf   wipe this dir
+
+BEFORE:
+
+iqdean@ubilinux:~$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  237M  83% /
+/dev/root        1.4G  1.1G  237M  83% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  419M  872M  33% /home
+
+iqdean@ubilinux:~$ sudo rm -rf ros_catkin_ws
+
+iqdean@ubilinux:~$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+...
+/dev/mmcblk0p10  1.3G  364M  928M  29% /home
+
+iqdean@ubilinux:~$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+...
+/dev/mmcblk0p10  1.3G  351M  941M  28% /home
+
+==== Hmm, the extern_src dir is eating up all the disk space on /home now ===
+
+>>> save the *.deb packages, rm the build trees
+
+iqdean@ubilinux:~/external_src$ find . -name "*.deb"
+./urdfdom_headers/liburdfdom-headers-dev_20150820-1_i386.deb		< ~/external_src$ mv urdfdom_headers/liburdfdom-headers-dev_20150820-1_i386.deb .
+./libconsole-bridge0.2_0.2.5-2_i386.deb
+./urdfdom/liburdfdom-dev_20150820-1_i386.deb				< ~/external_src$ mv urdfdom/liburdfdom-dev_20150820-1_i386.deb .
+./libconsole-bridge-dev_0.2.5-2_i386.deb
+./collada-dom-2.4.0/collada-dom-dev_2.4.0-1_i386.deb			< ~/external_src$ mv collada-dom-2.4.0/collada-dom-dev_2.4.0-1_i386.deb .
+./libconsole-bridge0.2-dbg_0.2.5-2_i386.deb
+
+iqdean@ubilinux:~/external_src$ ls *.deb
+collada-dom-dev_2.4.0-1_i386.deb           libconsole-bridge-dev_0.2.5-2_i386.deb
+libconsole-bridge0.2_0.2.5-2_i386.deb      liburdfdom-dev_20150820-1_i386.deb
+libconsole-bridge0.2-dbg_0.2.5-2_i386.deb  liburdfdom-headers-dev_20150820-1_i386.deb
+
+iqdean@ubilinux:~/external_src$ rm -rf collada-dom-2.4.0		< this is the pig
+
+iqdean@ubilinux:~/external_src$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  237M  83% /				< ok, since all the deps are already installed
+/dev/root        1.4G  1.1G  237M  83% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M     0  480M   0% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G   73M  1.2G   6% /home				< ok
+
+==== START ROS BUILD FRESH WITH ALL THE DEPENDEND LIBRARIES INSTALLED (i think ?) =====
+
+iqdean@ubilinux:~$ tree -L 1
+.
+└── external_src
+
+-------------------------------
+http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
+--------------------------------------------------------------------------------
+
+Per 9-install-ros-indigo-on-ubilinux-on-edison.txt, all the depend libraries and packages for building ros should
+now be alread installed, so wipe the current build tree and start over
+
+2 Installation
+Now we will download and build ROS Indigo.
+
+2.1 In order to build the core packages, you will need a catkin workspace. Create one now:
+
+$ mkdir ~/ros_catkin_ws
+$ cd ~/ros_catkin_ws
+
+2.1.1 Next we will want to fetch the core packages so we can build them. We will use wstool for this. 
+      Select the wstool command for the particular variant you want to install:
+
+ROS-Comm: (recommended) ROS package, build, and communication libraries. No GUI tools.
+
+$ rosinstall_generator ros_comm --rosdistro indigo --deps --wet-only --exclude roslisp --tar > indigo-ros_comm-wet.rosinstall
+$ wstool init src indigo-ros_comm-wet.rosinstall
+
+2 Resolve Dependencies
+2.2.1 libconsole-bridge-dev, liburdfdom-headers-dev, liburdfdom-dev, liblz4-dev, and collada-dom-dev   \
+2.2.2 libconsole-bridge-dev, liburdfdom-headers-dev, liburdfdom-dev, liblz4-dev, and collada-dom-dev   /  OK
+
+ii  libconsole-bridge-dev:i386         0.2.5-2                       i386         console bridge - development files
+ii  libconsole-bridge0.2:i386          0.2.5-2                       i386         console bridge - library
+ii  liburdfdom-dev                     20150820-1                    i386         liburdfdom-dev
+ii  liburdfdom-headers-dev             20150820-1                    i386         liburdfdom-headers-dev
+ii  liblz4-1:i386                      0.0~r114-2~bpo70+1            i386         Fast LZ compression algorithm library - runtime
+ii  liblz4-dev:i386                    0.0~r114-2~bpo70+1            i386         Fast LZ compression algorithm library - development files
+ii  collada-dom-dev                    2.4.0-1                       i386         collada-dom-dev
+
+2.2.3 Resolving Dependencies with rosdep
+The remaining dependencies should be resolved by running rosdep:
+Rasbian Wheezy:
+$ cd ~/ros_catkin_ws
+$ rosdep install --from-paths src --ignore-src --rosdistro indigo -y -r --os=debian:wheezy	<< I THINK I MISSED THIS STEP LAST TIME
+                                                                                                   THIS INSTALLS ALL KINDS OF STUFF!!
+
+=== REF [2.2.3] rosdep install console log ====   << lots of dpkg ERRORS, probably due to me wiping out the /usr/share dir to free up
+                                                     space on /
+
+ERROR: the following rosdeps failed to install
+  apt: command [sudo -H apt-get install -y python-mock] failed          \
+  apt: command [sudo -H apt-get install -y libboost-all-dev] failed
+  apt: command [sudo -H apt-get install -y python-netifaces] failed
+  apt: command [sudo -H apt-get install -y libgtest-dev] failed
+  apt: command [sudo -H apt-get install -y python-numpy] failed
+  apt: command [sudo -H apt-get install -y python-rospkg] failed
+  apt: command [sudo -H apt-get install -y python-catkin-pkg] failed
+  apt: command [sudo -H apt-get install -y libapr1-dev] failed		  > lets assume these are all due to /usr/share dir getting
+  apt: command [sudo -H apt-get install -y python-nose] failed              wiped out
+  apt: command [sudo -H apt-get install -y python-coverage] failed
+  apt: command [sudo -H apt-get install -y python-rosdep] failed
+  apt: command [sudo -H apt-get install -y libaprutil1-dev] failed
+  apt: command [sudo -H apt-get install -y python-paramiko] failed
+  apt: command [sudo -H apt-get install -y liblog4cxx10-dev] failed	/
+  apt: Failed to detect successful installation of [libboost-all-dev]	< Note: rosdep installed libboost-all-dev  which we didn't have
+  apt: Failed to detect successful installation of [python-numpy]               before (i think?)
+  apt: Failed to detect successful installation of [python-rospkg]
+  apt: Failed to detect successful installation of [python-catkin-pkg]
+  apt: Failed to detect successful installation of [libapr1-dev]
+  apt: Failed to detect successful installation of [python-nose]
+  apt: Failed to detect successful installation of [python-coverage]
+  apt: Failed to detect successful installation of [python-rosdep]
+  apt: Failed to detect successful installation of [libaprutil1-dev]
+  apt: Failed to detect successful installation of [python-paramiko]
+  apt: Failed to detect successful installation of [liblog4cxx10-dev]
+
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-numpy
+iU  python-numpy                       1:1.6.2-1.2                   i386         Numerical Python adds a fast array facility to the Python language
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-rospkg	     		  \
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-catkin-pkg
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-apr1-dev
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-nose
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-converage		   > assume not needed for minimal ROS-Comm build
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-rosdep			     ROS-Comm: (recommended) ROS package, build, and communication libraries. No GUI tools.
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-libaprutil1-dev
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep python-paramiko
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep liblog4cxx10-dev		  /
+iqdean@ubilinux:~/ros_catkin_ws$ dpkg -l | grep libboost-all-dev
+iU  libboost-all-dev                   1.49.0.1                      i386         Boost C++ Libraries development files (ALL) (default version)
+
+Note: Rosdep may report that python-rosdep, python-catkin-pkg, python-rospkg, and python-rosdistro failed to install; 
+      however, you can ignore this error because they have already been installed with pip.
+
+=== hmm, step 1.3 installs 'rosdep rosinstall_generator wstool rosinstall'                       ===   since we got to 41/48 built ok in take1
+=== but doesn't mention 'python-rosdep, python-catkin-pkg, python-rospkg, and python-rosdistro'  ===   << assume these arent needed
+
+1.3 Install bootstrap dependencies    
+
+$ sudo apt-get install python-setuptools python-pip python-yaml python-argparse python-distribute python-docutils python-dateutil python-setuptools python-six
+$ sudo pip install rosdep rosinstall_generator wstool rosinstall
+
+===
+
+iqdean@ubilinux:~/ros_catkin_ws$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.2G  143M  90% /          << down to 143M free on / after above step
+/dev/root        1.4G  1.2G  143M  90% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M  1.5M  478M   1% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G   86M  1.2G   7% /home
+
+2.3 Building the catkin Workspace
+Once you have completed downloading the packages and have resolved the dependencies, you are ready to build the catkin packages.
+
+Invoke catkin_make_isolated:
+
+$ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/indigo
+
+2.3.1 Install to /home/ros/indigo since we got disk space issues on / which is where /opt is on edison:
+
+iqdean@ubilinux:~/ros_catkin_ws$ ls
+indigo-ros_comm-wet.rosinstall  src
+
+$ sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /home/ros/indigo
+
+Build starts
+[1 of 48 ]
+...
+[41 of 48]  KEWL!!  we past last build error @ [41 of 48]  !!
+...
+[47 of 48] ok
+[48 of 48] ok 
+
+<== Finished processing package [48 of 48]: 'rosbag'       <- NOW we got ROS-Comm on ubilinux edison
+                                                              ROS-Comm: (recommended) ROS package, build, and communication libraries. No GUI tools.
+
+iqdean@ubilinux:/home$ ls -al ros/indigo/bin
+total 180
+drwxr-xr-x 2 root root  4096 Aug 22 02:04 .
+drwxr-xr-x 7 root root  4096 Aug 22 02:04 ..
+-rwxr-xr-x 1 root root  2792 Aug 22 01:21 catkin_find
+-rwxr-xr-x 1 root root  1071 Aug 22 01:21 catkin_init_workspace
+-rwxr-xr-x 1 root root 12280 Aug 22 01:21 catkin_make
+-rwxr-xr-x 1 root root  7287 Aug 22 01:21 catkin_make_isolated
+-rwxr-xr-x 1 root root  1614 Aug 22 01:21 catkin_package_version
+-rwxr-xr-x 1 root root 19810 Aug 22 01:21 catkin_prepare_release
+-rwxr-xr-x 1 root root  1720 Aug 22 01:21 catkin_test_results
+-rwxr-xr-x 1 root root  2414 Aug 22 01:21 catkin_topological_order
+-rwxr-xr-x 1 root root  1657 Aug 22 02:04 rosbag
+-rwxr-xr-x 1 root root  1663 Aug 22 01:24 rosboost-cfg
+-rwxr-xr-x 1 root root  1664 Aug 22 01:25 rosclean
+-rwxr-xr-x 1 root root    65 Aug 22 01:30 rosconsole
+-rwxr-xr-x 1 root root  2595 Aug 22 01:32 roscore
+-rwxr-xr-x 1 root root  1683 Aug 22 01:25 roscreate-pkg
+-rwxr-xr-x 1 root root  1760 Aug 22 01:25 rosgraph
+-rwxr-xr-x 1 root root  1657 Aug 22 01:32 roslaunch
+-rwxr-xr-x 1 root root  2433 Aug 22 01:32 roslaunch-complete
+-rwxr-xr-x 1 root root  1688 Aug 22 01:32 roslaunch-deps
+-rwxr-xr-x 1 root root  1692 Aug 22 01:32 roslaunch-logs
+-rwxr-xr-x 1 root root  2678 Aug 22 01:26 rosmake
+-rwxr-xr-x 1 root root  1667 Aug 22 01:26 rosmaster
+-rwxr-xr-x 1 root root  1657 Aug 22 01:26 rosmsg
+-rwxr-xr-x 1 root root  2032 Aug 22 01:26 rosmsg-proto
+-rwxr-xr-x 1 root root  1660 Aug 22 01:57 rosnode
+-rwxr-xr-x 1 root root  7150 Aug 22 01:28 rospack
+-rwxr-xr-x 1 root root  1659 Aug 22 01:29 rosparam
+-rwxr-xr-x 1 root root  2587 Apr 27 23:29 rosrun
+-rwxr-xr-x 1 root root  1669 Aug 22 01:30 rosservice
+-rwxr-xr-x 1 root root  1700 Aug 22 01:26 rossrv
+-rwxr-xr-x 1 root root  7153 Aug 22 01:28 rosstack
+-rwxr-xr-x 1 root root  1670 Aug 22 01:36 rostest
+-rwxr-xr-x 1 root root  1663 Aug 22 01:57 rostopic
+-rwxr-xr-x 1 root root  1686 Aug 22 01:32 rosunit
+-rwxr-xr-x 1 root root  1658 Aug 22 01:57 roswtf
+
+
+iqdean@ubilinux:/home$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.2G  143M  90% /
+/dev/root        1.4G  1.2G  143M  90% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M  1.5M  478M   1% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  165M  1.1G  13% /home
+
+iqdean@ubilinux:/home$ sudo apt-get clean
+[sudo] password for iqdean:
+
+iqdean@ubilinux:/home$ df -h
+Filesystem       Size  Used Avail Use% Mounted on
+rootfs           1.4G  1.1G  214M  84% /
+/dev/root        1.4G  1.1G  214M  84% /
+devtmpfs         480M     0  480M   0% /dev
+tmpfs             96M  304K   96M   1% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            192M     0  192M   0% /run/shm
+tmpfs            480M  1.5M  478M   1% /tmp
+/dev/mmcblk0p7    32M   16M   17M  48% /boot
+/dev/mmcblk0p10  1.3G  165M  1.1G  13% /home
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=== REF [2.2.3] rosdep install console log ====   << lots of dpkg ERRORS, probably due to me wiping out the /usr/share dir to free up
+                                                     space on / (which maybe wasn't such a smart idea??)
+
+
+dpkg: dependency problems prevent configuration of libboost-mpi-python-dev:
+ libboost-mpi-python-dev depends on libboost-mpi-python1.49-dev; however:
+  Package libboost-mpi-python1.49-dev is not configured yet.
+
+dpkg: error processing libboost-mpi-python-dev (--configure):
+ dependency problems - leaving unconfigured
+dpkg: dependency problems prevent configuration of libboost-all-dev:
+ libboost-all-dev depends on libboost-mpi-dev; however:
+  Package libboost-mpi-dev is not configured yet.
+ libboost-all-dev depends on libboost-mpi-python-dev; however:
+  Package libboost-mpi-python-dev is not configured yet.
+
+dpkg: error processing libboost-all-dev (--configure):
+ dependency problems - leaving unconfigured
+dpkg: dependency problems prevent configuration of libboost-graph-parallel1.49.0:
+ libboost-graph-parallel1.49.0 depends on libboost-mpi1.49.0 (>= 1.49.0-1); however:
+  Package libboost-mpi1.49.0 is not configured yet.
+ libboost-graph-parallel1.49.0 depends on libopenmpi1.3; however:
+  Package libopenmpi1.3 is not configured yet.
+
+dpkg: error processing libboost-graph-parallel1.49.0 (--configure):
+ dependency problems - leaving unconfigured
+Setting up libgtest-dev (1.6.0-2) ...
+Errors were encountered while processing:
+ man-db
+ libibverbs1
+ libopenmpi1.3
+ libboost-mpi1.49.0
+ libibverbs-dev
+ libopenmpi-dev
+ mpi-default-dev
+ libboost-mpi1.49-dev
+ libboost-mpi-dev
+ libboost-mpi-python1.49.0
+ libboost-mpi-python1.49-dev
+ libboost-mpi-python-dev
+ libboost-all-dev
+ libboost-graph-parallel1.49.0
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+executing command [sudo -H apt-get install -y python-numpy]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following package was automatically installed and is no longer required:
+  rlwrap
+Use 'apt-get autoremove' to remove it.
+The following extra packages will be installed:
+  libblas3 liblapack3
+Suggested packages:
+  python-numpy-doc python-numpy-dbg python-nose gfortran
+The following NEW packages will be installed:
+  libblas3 liblapack3 python-numpy
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+14 not fully installed or removed.
+Need to get 6,151 kB of archives.
+After this operation, 19.1 MB of additional disk space will be used.
+Get:1 http://http.debian.net/debian/ wheezy/main libblas3 i386 1.2.20110419-5 [213 kB]
+Get:2 http://http.debian.net/debian/ wheezy/main liblapack3 i386 3.4.1+dfsg-1+deb70u1 [3,294 kB]
+Get:3 http://http.debian.net/debian/ wheezy/main python-numpy i386 1:1.6.2-1.2 [2,644 kB]
+Fetched 6,151 kB in 8s (733 kB/s)
+debconf: Perl may be unconfigured (Can't locate strict.pm in @INC (@INC contains: /etc/perl /usr/local/lib/perl/5.14.2 /usr/local/share/perl/5.14.2 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.14 /usr/share/perl/5.14 /usr/local/lib/site_perl .) at (eval 1) line 2.
+BEGIN failed--compilation aborted at (eval 1) line 2.
+) -- aborting
+Selecting previously unselected package libblas3.
+(Reading database ... 47432 files and directories currently installed.)
+Unpacking libblas3 (from .../libblas3_1.2.20110419-5_i386.deb) ...
+Selecting previously unselected package liblapack3.
+Unpacking liblapack3 (from .../liblapack3_3.4.1+dfsg-1+deb70u1_i386.deb) ...
+Can't locate strict.pm in @INC (@INC contains: /etc/perl /usr/local/lib/perl/5.14.2 /usr/local/share/perl/5.14.2 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.14 /usr/share/perl/5.14 /usr/local/lib/site_perl .) at /usr/share/debconf/frontend line 5.
+BEGIN failed--compilation aborted at /usr/share/debconf/frontend line 5.
+dpkg: error processing /var/cache/apt/archives/liblapack3_3.4.1+dfsg-1+deb70u1_i386.deb (--unpack):
+ subprocess new pre-installation script returned error exit status 2
+Selecting previously unselected package python-numpy.
+Unpacking python-numpy (from .../python-numpy_1%3a1.6.2-1.2_i386.deb) ...
+Errors were encountered while processing:
+ /var/cache/apt/archives/liblapack3_3.4.1+dfsg-1+deb70u1_i386.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+executing command [sudo -H apt-get install -y python-rospkg]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+ python-rospkg : Depends: python:any (>= 2.7.1-0ubuntu2) but it is not installable
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y python-catkin-pkg]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-catkin-pkg : Depends: python:any (>= 2.7.1-0ubuntu2) but it is not installable
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y libapr1-dev]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ libapr1-dev : Depends: libapr1 (= 1.4.6-3+deb7u1) but it is not going to be installed
+               Depends: uuid-dev but it is not going to be installed
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y python-nose]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y python-coverage]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-coverage : Depends: libjs-jquery but it is not going to be installed
+                   Depends: libjs-jquery-tablesorter but it is not going to be installed
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y python-rosdep]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+ python-rosdep : Depends: python:any (>= 2.7.1-0ubuntu2) but it is not installable
+                 Depends: python-catkin-pkg but it is not going to be installed
+                 Depends: python-rospkg (>= 1.0.34) but it is not going to be installed
+                 Depends: python-rosdistro (>= 0.4.0) but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y libaprutil1-dev]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ libaprutil1-dev : Depends: libaprutil1 (= 1.4.1-3) but it is not going to be installed
+                   Depends: libldap2-dev but it is not going to be installed
+                   Depends: libapr1-dev (>= 1.2.2-1) but it is not going to be installed
+                   Depends: libsqlite3-dev but it is not going to be installed
+                   Depends: libpq-dev but it is not going to be installed
+                   Depends: libmysqlclient-dev but it is not going to be installed
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y python-paramiko]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+ python-paramiko : Depends: python-crypto (>= 2.1.0-2) but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+executing command [sudo -H apt-get install -y liblog4cxx10-dev]
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+You might want to run 'apt-get -f install' to correct these:
+The following packages have unmet dependencies:
+ liblog4cxx10-dev : Depends: liblog4cxx10 (= 0.10.0-1.2) but it is not going to be installed
+                    Depends: libapr1-dev but it is not going to be installed
+                    Depends: libaprutil1-dev but it is not going to be installed
+ python-numpy : Depends: liblapack3 but it is not going to be installed or
+                         liblapack.so.3 or
+                         libatlas3-base but it is not going to be installed
+E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+ERROR: the following rosdeps failed to install
+  apt: command [sudo -H apt-get install -y python-mock] failed
+  apt: command [sudo -H apt-get install -y libboost-all-dev] failed
+  apt: command [sudo -H apt-get install -y python-netifaces] failed
+  apt: command [sudo -H apt-get install -y libgtest-dev] failed
+  apt: command [sudo -H apt-get install -y python-numpy] failed
+  apt: command [sudo -H apt-get install -y python-rospkg] failed
+  apt: command [sudo -H apt-get install -y python-catkin-pkg] failed
+  apt: command [sudo -H apt-get install -y libapr1-dev] failed
+  apt: command [sudo -H apt-get install -y python-nose] failed
+  apt: command [sudo -H apt-get install -y python-coverage] failed
+  apt: command [sudo -H apt-get install -y python-rosdep] failed
+  apt: command [sudo -H apt-get install -y libaprutil1-dev] failed
+  apt: command [sudo -H apt-get install -y python-paramiko] failed
+  apt: command [sudo -H apt-get install -y liblog4cxx10-dev] failed
+  apt: Failed to detect successful installation of [libboost-all-dev]
+  apt: Failed to detect successful installation of [python-numpy]
+  apt: Failed to detect successful installation of [python-rospkg]
+  apt: Failed to detect successful installation of [python-catkin-pkg]
+  apt: Failed to detect successful installation of [libapr1-dev]
+  apt: Failed to detect successful installation of [python-nose]
+  apt: Failed to detect successful installation of [python-coverage]
+  apt: Failed to detect successful installation of [python-rosdep]
+  apt: Failed to detect successful installation of [libaprutil1-dev]
+  apt: Failed to detect successful installation of [python-paramiko]
+  apt: Failed to detect successful installation of [liblog4cxx10-dev]

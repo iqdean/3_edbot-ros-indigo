@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rostime
+Description: Description of rostime
+Version: 0.5.6
+Cflags: -I/home/ros/indigo/include -I/usr/include
+Libs: -L/home/ros/indigo/lib -lrostime -l:/usr/lib/libboost_date_time-mt.so -l:/usr/lib/libboost_system-mt.so -l:/usr/lib/libboost_thread-mt.so -lpthread
+Requires: cpp_common

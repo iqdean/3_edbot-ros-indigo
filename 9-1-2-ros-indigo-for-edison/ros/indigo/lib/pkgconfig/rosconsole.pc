@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rosconsole
+Description: Description of rosconsole
+Version: 1.11.13
+Cflags: -I/home/ros/indigo/include -I/usr/include
+Libs: -L/home/ros/indigo/lib -lrosconsole -lrosconsole_print -lrosconsole_backend_interface -l:/usr/lib/libboost_regex-mt.so -l:/usr/lib/libboost_system-mt.so -l:/usr/lib/libboost_thread-mt.so -lpthread
+Requires: cpp_common rostime

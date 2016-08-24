@@ -1,0 +1,8 @@
+prefix=/home/ros/indigo
+
+Name: rosbuild
+Description: Description of rosbuild
+Version: 1.11.8
+Cflags: 
+Libs: -L/home/ros/indigo/lib 
+Requires: 
